@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPS Shooter</title>
+    <link href="style.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"
+        integrity="sha512-Xm9qbB6Pu06k3PUwPj785dyTl6oHxgsv9nHp7ej7nCpAqGZT3OZpsELuCYX05DdonFpTlBpXMOxjavIAIUwr0w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script defer src="app.js" type="module"></script>
+</head>
+
+<body>
+    <div id="container">
+        <div class="ping"></div>
+        <div class="reloading-timer">
+            <div id="reload-time"></div>
+        </div>
+        <div class="info">
+            <div class="ammo">
+                <div id="ammo-ingun"></div>
+                <div id="ammo-total"></div>
+            </div>
+            <div class="health">
+                <div id="health-amount"></div>
+            </div>
+        </div>
+        <div class="kill-counter">
+            <div id="kills">0</div>
+            <div class="kill-text">kills</div>
+        </div>
+        <div class="leaderboard">
+            <div class="lboard-row" id="lboard-top">
+                <div class="lboard-rank">
+                    rank
+                </div>
+                <div class="lboard-name">
+                    name
+                </div>
+                <div class="lboard-kills">
+                    kills
+                </div>
+                <div class="lboard-deaths">
+                    deaths
+                </div>
+            </div>
+        </div>
+
+        <div class="crosshair-hit">
+            <div class="n"></div>
+            <div class="e"></div>
+            <div class="s"></div>
+            <div class="w"></div>
+        </div>
+
+        
+    </div>
+    <div class="death-screen">
+        <div class="death-text">
+            killed by:
+        </div>
+        <div class="death-name">
+            
+        </div>
+    </div>
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script type="module" src="app.js"></script>
+<script type="module" src="World/World.js"></script>
+<script type="module" src="World/WorldObjects/first-person-camera.js"></script>
+</html>

@@ -1,0 +1,387 @@
+body {
+    margin: 0;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.ping {
+    position:absolute;
+    top:0;
+    left:0;
+    height: 20px;
+    width: 100px;
+    color:white;
+}
+
+.crosshair-hit {
+    height: 10vh;
+    width: 10vh;
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%) rotate(45deg); /* Rotate the div by 45 degrees */
+    transform-origin: center;
+    opacity: 0;
+}
+
+@keyframes fade-in-out {
+    0% {opacity: 0;}
+    30% {opacity: 1;}
+    100% {opacity: 0;}
+}
+
+.fade-in-and-out {
+    animation: fade-in-out 0.200s linear
+}
+
+.n {
+    height: 10px;
+    width: 3px;
+    background-color: yellow;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.e {
+    height: 3px;
+    width: 10px;
+    background-color: yellow;
+    position: absolute;
+    top:50%;
+    left: 100%;
+    transform: translate(-100%, -50%);
+}
+
+.s {
+    height: 10px;
+    width: 3px;
+    background-color: yellow;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -100%);
+}
+
+.w {
+    height: 3px;
+    width: 10px;
+    background-color: yellow;
+    position: absolute;
+    top:50%;
+    transform: translateY(-50%);
+}
+
+.shotgun-crosshair {
+    height: 5px;
+    width: 5px;
+    position: absolute;
+    transition: 0.5s;
+}
+.ne {
+    border-right: 2px solid white;
+    border-top: 2px solid white;
+}
+.nw {
+    border-left: 2px solid white;
+    border-top: 2px solid white;
+}
+.se {
+    border-right: 2px solid white;
+    border-bottom: 2px solid white;
+}
+.sw {
+    border-left: 2px solid white;
+    border-bottom: 2px solid white;
+}
+
+.crosshair-element {
+    background-color: white;
+    position: absolute;
+    transition: 0.5s;
+    display: block;
+}
+
+.hit-text {
+    font-size: 25px;
+    transition: 0.5s;
+    position: absolute;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
+}
+
+.kill-or-assist-line {
+    height: 40px;
+    width: 350px;
+    position: absolute;
+    top: 90vh;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: top 1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    font-size: 25px;
+    font-weight: 900;
+    text-shadow: 2px 2px #000000;
+}
+
+.killed {
+    color:red;
+}
+
+.gamertag {
+    color:white;
+}
+
+
+.info {
+    position: absolute;
+    top: 85vh;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 70px;
+    width: 300px;
+    background-color: rgb(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    text-shadow: 2px 2px #000000;
+}
+
+.ammo {
+    height: 50%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 900;
+}
+
+#ammo-ingun {
+    width: 48%;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    color:white;
+    font-size: 25px;
+}
+
+#ammo-total {
+    width: 48%;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    color:gray;
+    font-size: 20px;
+}
+
+.health {
+    height: 40%;
+    width: 100%;
+    background-color: rgb(0, 0, 0, 0.5);
+}
+
+#health-amount {
+    height: 100%;
+    width: 100%;
+    background-color: white;
+}
+
+.reloading-timer {
+    position: absolute;
+    top: 95vh;
+    left: 5vw;
+    height: 10px;
+    width: 200px;
+    background-color: rgb(0, 0, 0, 0.5);
+}
+
+#reload-time {
+    height: 100%;
+    width: 0px;
+    background-color: white;
+}
+
+.kill-feed {
+    position:absolute;
+    top: 75vh;
+    left: 5vw;
+    height: 10vh;
+    width: 30vw;
+}
+
+.kill-feed-line {
+    height: 20px;
+    width: 100%;
+    font-size: 10px;
+}
+
+#killer {
+    color: rgb(0, 0, 155);
+    font-weight: 900;
+}
+
+#victim {
+    color: rgb(155, 0, 0);
+    font-weight: 900;
+}
+
+.kill-counter {
+    position: absolute;
+    height: 7vh; 
+    width: 13vw;
+    top: 5vh;
+    left: 83vw;
+    background-color: rgb(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#kills {
+    width: 30%;
+    height: 100%;
+    color: white;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 35px;
+}
+
+.kill-text {
+    width: 70%;
+    height: 100%;
+    font-size: 35px;
+    background-color: rgb(0, 0, 0, 0.5);
+    text-transform: uppercase;
+    color: white;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.leaderboard {
+    position: absolute;
+    top: 5vh;
+    left: 5vw;
+    height: 20vh;
+    width: 25vw;
+    background-color: rgb(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.lboard-row {
+    width: 100%;
+    height: 3vh;
+    display: flex;
+    border-bottom: gray;
+}
+
+#lboard-top {
+    background-color: rgb(0, 0, 0, 0.5);
+}
+
+.lboard-row * {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    color:white;
+    height: 100%;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lboard-rank {
+    width: 15%;
+}
+
+.lboard-name {
+    width: 45%;
+}
+
+.lboard-kills {
+    width: 25%;
+}
+
+.lboard-deaths {
+    width: 25%;
+}
+
+.hit-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+}
+
+@keyframes pulseAnimation {
+    0% {
+        opacity: 0;
+        background-color: rgba(255, 0, 0, 0.8); /* Red with 80% opacity */
+    }
+    50% {
+        opacity: 1;
+        background-color: rgba(255, 0, 0, 0.5); /* Red with 50% opacity */
+    }
+    100% {
+        opacity: 0;
+        background-color: rgba(255, 0, 0, 0.8); /* Red with 80% opacity */
+    }
+}
+
+.hit-pulse {
+    animation: pulseAnimation 1s ease-out; /* Adjust the duration as needed */
+}
+
+.death-screen {
+    position: absolute;
+    color: white;
+    top:0;
+    height: 100vh;
+    width: 100vw;
+    background-color: black;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    display: none;
+}
+
+.death-text {
+    height: 50px;
+    width: 200px;
+    color:gray;
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.death-name {
+    height: 100px;
+    width: 700px;
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes fade-in {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
+
+.fade-in {
+    animation: fade-in 1s forwards;
+}
