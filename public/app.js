@@ -1,6 +1,6 @@
 import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js'
 import { World } from './World/World.js';
-import { FirstPersonCamera } from './World/WorldObjects/first-person-camera.js'
+import { LockScreen } from './Classes/Lock-screen-component.js';
 import { FBXLoader } from './World/WorldObjects/FBXLoader/FBXLoader.js'
 import { AnimationComponent } from './Classes/Animation-component.js'
 import { GunAttacher } from './Classes/Attach-gun-component.js';
@@ -9,6 +9,7 @@ import { GunController } from './Classes/Gun-controller.js';
 import { Crosshair } from './Classes/Crosshair-component.js'
 import { UserInterface } from './Classes/UI-controller.js'
 import { AudioController } from './Classes/Audio-controller.js';
+import { keyStates } from './World/WorldObjects/handle-keydown.js';
 
 const socket = io()
 
@@ -25,7 +26,7 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
 const renderer = new THREE.WebGLRenderer( { antialias: true } );
 
-new FirstPersonCamera(camera, renderer)
+export let lockscreen = new LockScreen(camera, renderer)
 
 let world = new World(scene, camera, renderer)
 world.initialize()
@@ -62,7 +63,7 @@ export let mainPlayerArms = null
 socket.on('player-update', playersList => {
     playersList.forEach(playerData => {
         const [id, p, yrot, state, inHand, gamertag] = playerData
-        const pos = [p[0], p[1] - (player.height / 2), p[2]]
+        const pos = [p[0], p[1] - (player.height / 4), p[2]]
 
         if (!players.hasOwnProperty(id)) {
             if (socket.id == id) {
@@ -99,6 +100,8 @@ socket.on('player-update', playersList => {
             if(socket.id != id) {
                 players[id].position.set(...pos)
                 players[id].rotation.y = yrot
+            } else {
+                if(!lockscreen.locked) return
             }
             if (state && state !== players[id].state) {
                 animationComponents[id].playAnimation(state)
@@ -142,12 +145,12 @@ socket.on('remove-player', id => {
 
 socket.on('target-hit', data => {
     let [health, color, gamertag, state] = data
-    if(state == 'dead') return
+    if(state.includes('dead')) return
     if(health <= 0) {
         audio.playAudio('./Audio/Other/headshot.mp3')
         setTimeout(() => {
             audio.playAudio('./Audio/Other/kill.mp3')
-        }, 500)
+        }, 200)
         color = 'red'
         userInterface.addKillLine(gamertag)
     } else {
@@ -183,6 +186,7 @@ export function keydownHandler(eventCode) {
         gun.changeGun(player.inHand)
         arms.changeWeapon()
         crosshair.changeCrosshair(player.inHand)
+        mainPlayerArms.removeMuzzleFlash()
     }
     if(eventCode == 'Digit2') {
         if(player.inHand == 'S1897') return
@@ -190,7 +194,30 @@ export function keydownHandler(eventCode) {
         gun.changeGun(player.inHand)
         arms.changeWeapon()
         crosshair.changeCrosshair(player.inHand)
+        mainPlayerArms.removeMuzzleFlash()
     }
+    if(eventCode == 'ShiftLeft') {
+        world.crouch('down')
+    }
+    if(eventCode == 'Space') {
+        keyStates['spaceStillDown'] = true
+    }
+    if(eventCode == 'KeyG') {
+        //console something
+    }
+}
+
+export function keyupHandler(eventCode) {
+    if(eventCode == 'ShiftLeft') {
+        world.crouch('up')
+    }
+    if(eventCode == 'Space') {
+        keyStates['spaceStillDown'] = false
+    }
+}
+
+export function settingsChanges(name) {
+    socket.emit('settings-change', name)
 }
 
 function loop() {
@@ -205,5 +232,6 @@ function loop() {
     player.update()
     arms.update(player.state)
     crosshair.update(player.state)
+    lockscreen.update()
     world.animate()
 }

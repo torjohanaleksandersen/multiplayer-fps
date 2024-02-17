@@ -45,14 +45,20 @@ class Shotgun {
         this.dist = 5
 
         this.stateMap = {
+            'idle.crouch.ADS': 10,
             'idle.ADS': 10,
             'idle': 10,
+            'idle.crouch': 10,
         
+            'walk.crouch.ADS': 15,
             'walk.ADS': 15,
             'walk': 15,
-        
+            'walk.crouch': 15,
+            
+            'run.crouch.ADS': 20,
             'run.ADS': 20,
             'run': 20,
+            'run.crouch': 20,
         }
         
         this.dot = document.createElement('div')
@@ -119,14 +125,20 @@ class AssaultRifle {
         this.dist = 5
 
         this.stateMap = {
+            'idle.crouch.ADS': 2,
             'idle.ADS': 4,
             'idle': 20,
+            'idle.crouch': 14,
         
+            'walk.crouch.ADS': 17,
             'walk.ADS': 20,
             'walk': 35,
+            'walk.crouch': 25,
         
+            'run.crouch.ADS': 25,
             'run.ADS': 35,
             'run': 60,
+            'run.crouch': 35,
         }
 
         this.dot = document.createElement('div')

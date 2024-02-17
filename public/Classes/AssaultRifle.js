@@ -42,7 +42,11 @@ export class AssaultRifle extends Gun {
     }
 
     shoot() {
-        if(!this.player.state.includes('.ADS') || this.player.state.includes('dead')) return
+        if(!this.player.state.includes('.ADS') || this.player.state.includes('dead') ) {
+            if(!this.player.state.includes('.crouch')) {
+                return
+            }
+        }
         if(this.reloading) {
             this.stopReload()
         }
@@ -51,6 +55,7 @@ export class AssaultRifle extends Gun {
             this.currentAmmo--;
             this.updateAmmo()
         } else {
+            audio.playAudio('./Audio/Guns/Assault Rifle Dry.mp3')
             return
         }
         audio.playAudio('./Audio/Guns/Assault Rifle Fire.mp3')

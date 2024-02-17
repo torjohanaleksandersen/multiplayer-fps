@@ -1,4 +1,4 @@
-import { mouseDown } from '../World/WorldObjects/handle-keydown.js'
+import { mouseDown, keyStates } from '../World/WorldObjects/handle-keydown.js'
 import { AssaultRifle } from './AssaultRifle.js'
 import { Shotgun } from './Shotgun.js'
 
@@ -31,7 +31,7 @@ export class GunController {
     }
 
     update() {
-        if(mouseDown[0]) {
+        if(mouseDown[0] || keyStates['KeyJ']) {
             this.activeGun.shootController()
         }
     }

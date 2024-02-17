@@ -37,6 +37,26 @@ export class Arms {
         }, 10)
     }
 
+    changeAction(type, dir) {
+        let origin = 0, direction = 0
+        if(type == 'crouch') {
+            if (dir == 'down') {
+
+            } else if(dir == 'up') {
+
+            }
+        }
+        let timeElapsed = 0
+        let interval = setInterval(() => {
+            timeElapsed += 10
+
+            if (timeElapsed >= 200) {
+                clearInterval(interval)
+                return
+            }
+        }, 10)
+    }
+
     changeWeapon() {
         if(this.changingWeapon) return
         this.changingWeapon = true
@@ -67,12 +87,15 @@ export class Arms {
         this.component.rotateY(Math.PI)
         
 
-        if(state.includes('.ADS')) {
+        if(state.includes('.ADS') && !state.includes('.crouch')) {
             this.component.translateZ(0 + this.dz);
             this.component.translateY(-0.8 + this.dy);
             this.component.translateX(0);
-        } 
-        else {
+        } else if (state.includes('.crouch')) {
+            this.component.translateZ(0.05 + this.dz);
+            this.component.translateY(-0.6 + this.dy);
+            this.component.translateX(0);
+        }  else {
             this.component.translateZ(0.1 + this.dz);
             this.component.translateY(-0.7 + this.dy);
             this.component.translateX(0);

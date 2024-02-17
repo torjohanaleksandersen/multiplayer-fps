@@ -4,6 +4,7 @@ import { Capsule } from './WorldObjects/Capsule.js'
 import { GLTFLoader } from './WorldObjects/GLTFLoader.js'
 import { Player } from '../Classes/Player.js'
 import { keyStates } from './WorldObjects/handle-keydown.js'
+import { lockscreen } from '../app.js'
 
 export class World {
     constructor(scene, camera, renderer) {
@@ -12,11 +13,32 @@ export class World {
         this.renderer = renderer
         this.initialized = false
 
-        this.player = new Player(this.camera)
+        this.player = new Player(this.camera, this.playerOnFloor)
+        this.canJump = true
     }
 
     get Player() {
         return this.player
+    }
+
+    crouch(params) {
+        if(!lockscreen.locked) return
+        this.player.crouch(params)
+    }
+
+    getSpawnPosition() {
+        this.spawnPossibilities = [
+            [4, 0.35, -4],
+            [8.7, 0.35, -3.7],
+            [-4.3, 0.35, -4.1],
+            [-13.7, 0.35, -3.6],
+            [-15.5, 0.35, 16.5],
+            [-4.7, 0.35, 17.9],
+            [8.5, 0.35, 17.5],
+            [0.65, 0.35, 5]
+        ]
+
+        return this.spawnPossibilities[Math.floor(Math.random() * this.spawnPossibilities.length)]
     }
 
     initialize() {
@@ -65,7 +87,12 @@ export class World {
         this.GRAVITY = 30;
         this.STEPS_PER_FRAME = 5;
 
-        this.playerCollider = new Capsule( new THREE.Vector3( 0, 0.35, 0 ), new THREE.Vector3( 0, 1, 0 ), 0.35 );
+        let spawn = this.getSpawnPosition()
+        let x = spawn[0]
+        let z = spawn[2]
+
+        this.playerCollider = new Capsule( new THREE.Vector3( x, this.player.radius, z ), new THREE.Vector3( x, this.player.height, z ), this.player.radius );
+        this.player.collider = this.playerCollider
 
         this.playerVelocity = new THREE.Vector3();
         this.playerDirection = new THREE.Vector3();
@@ -135,7 +162,7 @@ export class World {
     }
     
     controls( deltaTime ) {
-        if(this.player.state == 'dead') return
+        if(this.player.state == 'dead' || !lockscreen.locked) return
         
         this.speed = this.player.speed
     
@@ -170,9 +197,11 @@ export class World {
     
         }
     
-        if ( this.playerOnFloor ) {
+        if ( this.playerOnFloor && this.canJump ) {
     
             if ( keyStates[ 'Space' ] ) {
+
+                this.jumpFatigue()
     
                 this.playerVelocity.y = this.player.jumpForce;
     
@@ -182,17 +211,32 @@ export class World {
     
     }
 
+    jumpFatigue() {
+        this.canJump = false
+        let interval = setInterval(() => {
+            if(this.playerOnFloor && !keyStates['spaceStillDown']) {
+                clearInterval(interval)
+                setTimeout(() => {
+                    this.canJump = true
+                }, 50)
+            }
+        }, 50)
+    }
+
     renderMap() {
         this.worldOctree = new Octree();
 
         const loader = new GLTFLoader()
 
-        loader.load( './World/WorldObjects/de_dust_2_with_real_light.glb', ( gltf ) => {
+        loader.load( './World/WorldObjects/krunker-shipyard.glb', ( gltf ) => {
         
-            let s = 0.7
+            let s = 0.08
+            //shipyard = 0.08
+            //newtown = 0.06
             gltf.scene.scale.set(s, s, s)
             this.map = gltf.scene
-            this.map.position.set(-5, -5, 0)
+            this.map.receiveShadow = true
+            this.map.castShadow = true
             this.scene.add( gltf.scene );
         
             this.worldOctree.fromGraphNode( gltf.scene );
@@ -200,25 +244,9 @@ export class World {
             gltf.scene.traverse( child => {
         
                 if ( child.isMesh ) {  
-                    /*
-                    var newMaterial = new THREE.MeshStandardMaterial();
-            
-                    // Copy over relevant properties from the original material
-                    newMaterial.map = child.material.map; // Copy texture
-                    newMaterial.color = child.material.color; // Copy color
-                    
-                    // Customize the cloned material properties
-                    newMaterial.metalness = 0; // Example metalness
-                    newMaterial.roughness = 0.1; // Example roughness
 
-                    // Assign the new material to the mesh
-                    child.material = newMaterial;
-                    */
-    
                     if ( child.material.map ) {
-        
                         child.material.map.anisotropy = 4;
-        
                     }
         
                 }
@@ -247,8 +275,11 @@ export class World {
     
 
     resetPlayerPosition() {
-        this.playerCollider.start.set( 0, 0.35, 0 );
-        this.playerCollider.end.set( 0, 1, 0 );
+        let position = this.getSpawnPosition()
+        let x = position[0]
+        let z = position[2]
+        this.playerCollider.start.set( x, 0.35, z );
+        this.playerCollider.end.set( x, 1, z );
         this.playerCollider.radius = 0.35;
         this.camera.position.copy( this.playerCollider.end );
         this.camera.rotation.set( 0, 0, 0 );

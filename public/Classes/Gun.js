@@ -61,11 +61,11 @@ export class Gun {
     }
 
     muzzleFlash() {
-        const light = new THREE.PointLight( 0xffffff, 5, 100 );
+        const light = new THREE.PointLight( 0xffffff, 10, 100 );
         light.position.copy(this.camera.position)
         light.rotation.copy(this.camera.rotation);
         light.updateMatrix();
-        light.translateZ(-0.8);
+        light.translateZ(-0.3);
         light.translateY(-0.1);
         light.translateX(0.1);
         this.scene.add( light );

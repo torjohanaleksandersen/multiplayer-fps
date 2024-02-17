@@ -8,72 +8,98 @@ let gunPath = {
 
 let gunStates = {
     'M416': {
+        'pos': [2, 0, 5],
         'idle': {
-            pos: [2, 0, 5],
             rot: [Math.PI / 1.4, 0, Math.PI * 1.45]
         },
         'walk': {
-            pos: [2, 0, 5],
             rot: [Math.PI / 1.7, 0, Math.PI * 1.5]
         },
         'run': {
-            pos: [2, 0, 5],
             rot: [Math.PI / 1.5, 0, Math.PI * 1.5]
         },
     
         'idle.ADS': {
-            pos: [2, 0, 5],
             rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
         },
     
         'walk.ADS': {
-            pos: [2, 0, 5],
             rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
         },
     
         'run.ADS': {
-            pos: [2, 0, 5],
             rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
         },
 
-        /*
-        'dead': {
-            pos: [2, 0, 5],
+
+        'idle.crouch': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+        'walk.crouch': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+        'run.crouch': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+    
+        'idle.crouch.ADS': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+    
+        'walk.crouch.ADS': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+    
+        'run.crouch.ADS': {
             rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
         },
 
-        'dead.ADS': {
-            pos: [2, 0, 5],
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-        */
+
+
     },
     'S1897': {
+        'pos': [10, 0, 5],
         'idle': {
-            pos: [10, 0, 5],
             rot: [Math.PI / 1.4, 0, Math.PI * 1.45]
         },
         'walk': {
-            pos: [10, 0, 5],
             rot: [Math.PI / 1.7, 0, Math.PI * 1.5]
         },
         'run': {
-            pos: [10, 0, 5],
             rot: [Math.PI / 1.5, 0, Math.PI * 1.5]
         },
     
         'idle.ADS': {
-            pos: [10, 0, 5],
             rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
         },
     
         'walk.ADS': {
-            pos: [10, 0, 5],
             rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
         },
     
         'run.ADS': {
-            pos: [10, 0, 5],
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+
+        'idle.crouch': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+        'walk.crouch': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+        'run.crouch': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+    
+        'idle.crouch.ADS': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+    
+        'walk.crouch.ADS': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+    
+        'run.crouch.ADS': {
             rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
         },
     }
@@ -152,8 +178,8 @@ export class GunAttacher {
 
     updateFromPlayerState(state) {
         if(!this.gun) return
-        if(state == "dead") return
-        this.gun.position.set(...gunStates[this.gunString][state].pos)
+        if(state.includes("dead")) return
+        this.gun.position.set(...gunStates[this.gunString]['pos'])
         this.gun.rotation.set(...gunStates[this.gunString][state].rot)
     }
 }

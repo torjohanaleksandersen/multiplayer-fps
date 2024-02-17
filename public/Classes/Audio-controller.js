@@ -9,6 +9,23 @@ export class AudioController {
         this.positionalSounds = [];
         this.globalSounds = [];
         this.actionSounds = {};
+
+        this.initializeBackgroundAudio()
+    }
+
+    initializeBackgroundAudio() {
+        this.backgroundAudio = document.getElementById('background-audio')
+        this.backgroundAudio.volume = 1
+        document.addEventListener('click', () => {
+            this.playBackgroundAudio()
+        })
+        this.backgroundAudio.addEventListener('ended', () => {
+            this.playBackgroundAudio()
+        })
+    }
+
+    playBackgroundAudio() {
+        this.backgroundAudio.play()
     }
 
     createPosition(position) {
@@ -29,8 +46,8 @@ export class AudioController {
         this.positionalLoader.load(url, (buffer) => {
             positionalSound.setBuffer(buffer);
             positionalSound.setRefDistance(20);
-            positionalSound.setRolloffFactor(10);
-            //positionalSound.play();
+            positionalSound.setRolloffFactor(200);
+            positionalSound.play();
         });
     }
 

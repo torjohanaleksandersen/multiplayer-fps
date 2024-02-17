@@ -51,10 +51,11 @@ export class Shotgun extends Gun {
             this.currentAmmo--;
             this.updateAmmo()
         } else {
+            audio.playAudio('./Audio/Guns/Shotgun Dry.mp3')
             return
         }
-        audio.playAudio('./Audio/Guns/Shotgun Fire.mp3')
-        super.playAudioForClients('Shotgun Fire.mp3')
+        audio.playAudio('./Audio/Guns/Shotgun Fire-2.mp3')
+        super.playAudioForClients('Shotgun Fire-2.mp3')
 
         let damageTotal = 0
         let headshot = false

@@ -1,7 +1,7 @@
 export const keyStates = {}
 export const mouseDown = {}
 
-import { gun, keydownHandler } from "../../app.js";
+import { gun, keydownHandler, keyupHandler } from "../../app.js";
 
 
 document.addEventListener( 'keydown', ( event ) => {
@@ -15,6 +15,7 @@ document.addEventListener( 'keydown', ( event ) => {
 document.addEventListener( 'keyup', ( event ) => {
 
     keyStates[ event.code ] = false;
+    keyupHandler(event.code)
 
 } );
 

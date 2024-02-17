@@ -31,6 +31,7 @@ class User {
 
         this.socket.on('world-initialized', () => {
             this.initialized = true
+            updateGloballyLeaderboard()
         })
  
         this.socket.on('client-update', data => {
@@ -44,6 +45,12 @@ class User {
 
         this.socket.on('player-hit', data => {
             this.hit(data)
+        })
+
+        this.socket.on('settings-change', data => {
+            const name = data
+            this.gamerTag = name
+            updateGloballyLeaderboard()
         })
 
         this.socket.on('audio', data => {
@@ -69,7 +76,7 @@ class User {
                 target = USERS[i]
                 break
             }
-        } 
+        }
         if(target) {
             if(target.state == 'dead') return
             target.health -= damage
@@ -78,9 +85,10 @@ class User {
             } else {
                 this.kills++
                 target.deaths++
-                target.socket.emit('die', gamertag)
+                target.socket.emit('die', this.gamerTag)
             } 
-            this.socket.emit('target-hit', [target.health, color, this.gamerTag, target.state])
+            this.socket.emit('target-hit', [target.health, color, gamertag, target.state])
+            updateGloballyLeaderboard()
         }
     }
 
@@ -116,9 +124,13 @@ function loop() {
     }
     for (let i = 0; i < USERS.length; i++) {
         USERS[i].socket.emit('player-update', data)
+    }
+}
+
+function updateGloballyLeaderboard() {
+    for (let i = 0; i < USERS.length; i++) {
         USERS[i].updateLeaderboard()
     }
-
 }
 
 setInterval(() => {

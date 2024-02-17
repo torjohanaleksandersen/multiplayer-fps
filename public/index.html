@@ -55,7 +55,37 @@
             <div class="w"></div>
         </div>
 
-        
+        <div class="lock-screen">
+            <div class="pause-container">
+                <div class="pause-title">pause</div>
+                <div class="pause-options">
+                    <button class="settings">settings</button>
+                    <button class="back-to-game">back to game</button>
+                </div>
+            </div>
+            <div class="settings-container">
+                <div class="pause-title">settings</div>
+                <div class="setting-row">
+                    <div class="setting-type">name</div>
+                    <div class="input-to-setting">
+                        <input type="text" class="name-input" width="50%;"/>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <div class="setting-type">sens</div>
+                    <div class="input-to-setting">
+                        <span class="sens-value">50</span><input type="range" min="1" max="200" value="50" class="sens-slider"/>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <div class="setting-type">ADS sens</div>
+                    <div class="input-to-setting">
+                        <span class="sens-value">50</span><input type="range" min="1" max="200" value="50" class="sens-slider"/>
+                    </div>
+                </div>
+                <button class="back-pause">back</button>
+            </div>
+        </div>
     </div>
     <div class="death-screen">
         <div class="death-text">
@@ -65,9 +95,13 @@
             
         </div>
     </div>
+
+    <audio src="./Audio/Other/Background-2.mp3" id="background-audio"></audio>
 </body>
 <script src="/socket.io/socket.io.js"></script>
 <script type="module" src="app.js"></script>
 <script type="module" src="World/World.js"></script>
 <script type="module" src="World/WorldObjects/first-person-camera.js"></script>
+<script type="module" src="Classes/Lock-screen-component.js"></script>
+<script type="module" src="Classes/Audio-controller.js"></script>
 </html>
