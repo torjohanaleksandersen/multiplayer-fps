@@ -17,7 +17,7 @@ export class LockScreen {
         document.addEventListener('mousedown', (e) => {
             if(e.button == 0 && !this.gameStartet) {
                 this.controls.lock()
-                //this.gameStartet = true
+                this.gameStartet = true
             }
         })
 
@@ -58,7 +58,7 @@ export class LockScreen {
     update() {
         this.locked = this.controls.isLocked
         if (!this.controls.isLocked && this.gameStartet) {
-            //this.DOM.lockscreen.style.display = 'block'
+            this.DOM.lockscreen.style.display = 'block'
             document.querySelector('.sens-value').innerText = document.querySelector('.sens-slider').value
         } else {
             this.DOM.lockscreen.style.display = 'none'
