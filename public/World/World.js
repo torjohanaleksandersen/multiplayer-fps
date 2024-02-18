@@ -15,6 +15,10 @@ export class World {
 
         this.player = new Player(this.camera, this.playerOnFloor)
         this.canJump = true
+
+        window.addEventListener('resize', () => {
+            this.onWindowResize()
+        });
     }
 
     get Player() {
@@ -231,8 +235,6 @@ export class World {
         loader.load( './World/WorldObjects/krunker-shipyard.glb', ( gltf ) => {
         
             let s = 0.08
-            //shipyard = 0.08
-            //newtown = 0.06
             gltf.scene.scale.set(s, s, s)
             this.map = gltf.scene
             this.map.receiveShadow = true
@@ -240,6 +242,9 @@ export class World {
             this.scene.add( gltf.scene );
         
             this.worldOctree.fromGraphNode( gltf.scene );
+
+            this.addLattice()
+            this.addBarrier()
         
             gltf.scene.traverse( child => {
         
@@ -258,6 +263,74 @@ export class World {
         } );
     }
 
+    addLattice() {
+        let infos = [
+            [[8.8, 0.6, -5.37], 0],
+            [[6.3, 0.6, -5.37], 0],
+            [[3.8, 0.6, -5.37], 0],
+            [[1.3, 0.6, -5.37], 0],
+            [[-1.2, 0.6, -5.37], 0],
+            [[-3.7, 0.6, -5.37], 0],
+            [[-6.2, 0.6, -5.37], 0],
+            [[-8.7, 0.6, -5.37], 0],
+            [[-11.2, 0.6, -5.37], 0],
+            [[-13.7, 0.6, -5.37], 0],
+            [[-16.2, 0.6, -5.37], 0],
+
+            [[10.14, 0.3, -1.25], - Math.PI / 2],
+            [[10.14, 0.3, 1.25], - Math.PI / 2],
+
+            [[9.5, 1.8, 19.1], Math.PI],
+            [[7, 1.8, 19.1], Math.PI],
+            [[4.5, 1.8, 19.1], Math.PI],
+            [[2, 1.8, 19.1], Math.PI],
+            [[-0.5, 1.8, 19.1], Math.PI],
+            [[-3, 1.8, 19.1], Math.PI],
+            [[-5.5, 1.8, 19.1], Math.PI],
+            [[-8, 1.8, 19.1], Math.PI],
+            [[-10.5, 1.8, 19.1], Math.PI],
+            [[-13, 1.8, 19.1], Math.PI],
+            [[-15.5, 1.8, 19.1], Math.PI],
+
+            [[-16.7, 0.3, -4.2], Math.PI / 2],
+            [[-16.7, 0.3, -1.7], Math.PI / 2],
+            [[-16.7, 0.3, 0.8], Math.PI / 2],
+            [[-16.7, 0.3, 8.3], Math.PI / 2],
+            [[-16.7, 0.3, 10.8], Math.PI / 2],
+        ]
+        const geometry = new THREE.PlaneGeometry(2.5, 2.5)
+
+        const textureLoader = new THREE.TextureLoader();
+        const texture = textureLoader.load('./Images/lattice.png')
+        const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+        
+        for (let i = 0; i < infos.length; i++) {
+            const mesh = new THREE.Mesh(geometry, material)
+            mesh.position.set(...infos[i][0])
+            mesh.rotation.y = infos[i][1]
+            this.worldOctree.fromGraphNode(mesh)
+            this.scene.add(mesh);
+        }
+    }
+
+    addBarrier() {
+        let infos = [
+            [[-3.7, 4, -5.37], [30, 5], 0],
+            [[-3.7, 5.5, 19.1], [30, 5], Math.PI],
+            [[-16.7, 4, 7], [30, 5], Math.PI / 2],
+            [[10.14, 4, 7], [30, 5], - Math.PI / 2],
+        ]
+        
+        for (let i = 0; i < infos.length; i++) {
+            const geometry = new THREE.PlaneGeometry(...infos[i][1])
+            const material = new THREE.MeshBasicMaterial();
+            const mesh = new THREE.Mesh(geometry, material)
+            mesh.position.set(...infos[i][0])
+            mesh.rotation.y = infos[i][2]
+            this.worldOctree.fromGraphNode(mesh)
+        }
+    }
+
     
     teleportPlayerIfOob() {
 
@@ -271,6 +344,13 @@ export class World {
 
         }
 
+    }
+
+    onWindowResize() {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+
+        this.renderer.setSize( window.innerWidth, window.innerHeight );
     }
     
 

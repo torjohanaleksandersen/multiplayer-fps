@@ -11,11 +11,23 @@ export class AudioController {
         this.actionSounds = {};
 
         this.initializeBackgroundAudio()
+        this.addButtonClickSound()
+    }
+
+    addButtonClickSound() {
+        const buttons = document.querySelectorAll('button')
+
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                const audio = new Audio('./Audio/SFX/mouse-click.mp3');
+                audio.volume = 0.5
+                audio.play();
+            })
+        })
     }
 
     initializeBackgroundAudio() {
         this.backgroundAudio = document.getElementById('background-audio')
-        this.backgroundAudio.volume = 1
         document.addEventListener('click', () => {
             this.playBackgroundAudio()
         })

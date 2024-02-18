@@ -1,6 +1,5 @@
 import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js'
 import { keyStates, mouseDown } from '../World/WorldObjects/handle-keydown.js'
-import { arms } from '../app.js'
 
 export class Player {
     constructor(camera) {
@@ -27,7 +26,6 @@ export class Player {
     }
 
     crouch(dir) {
-        arms.changeAction('crouch', dir)
         if (dir == 'down') {
             if (this.crouching == true) return;
             this.crouching = true;
@@ -65,7 +63,6 @@ export class Player {
     updateState() {
         if (this.state.includes('dead')) return;
     
-        // Determine the base state (idle, walk, run)
         if (keyStates['KeyW']) {
             this.state = this.crouching ? 'walk' : 'run';
         } else if (keyStates['KeyA'] || keyStates['KeyD'] || keyStates['KeyS']) {
@@ -74,7 +71,6 @@ export class Player {
             this.state = 'idle';
         }
     
-        // Adjust the state based on crouching and aiming
         if (this.crouching) {
             this.state += '.crouch';
         }

@@ -1,9 +1,9 @@
 import { FirstPersonCamera } from "../World/WorldObjects/first-person-camera.js";
-import { settingsChanges } from "../app.js";
 
 export class LockScreen {
-    constructor(camera, renderer) {
+    constructor(camera, renderer, socket) {
         this.controls = new FirstPersonCamera(camera, renderer).controls
+        this.socket = socket
         this.DOM = {
             lockscreen : document.querySelector('.lock-screen'),
             backToGameButton : document.querySelector('.back-to-game'),
@@ -12,6 +12,7 @@ export class LockScreen {
             settingsButton: document.querySelector('.settings'),
             back: document.querySelector('.back-pause')
         }
+        this.tag = undefined
         this.locked = false
         this.gameStartet = false
         document.addEventListener('mousedown', (e) => {
@@ -33,15 +34,35 @@ export class LockScreen {
             this.applySettings()
             this.changeScreen('pause')
         })
+
+        this.socket.on('name-verified', data => {
+            this.applyName(data)
+        })
+    }
+
+    addGamertag(tag) {
+        this.tag = tag
+        document.querySelector('.name-input').placeholder = tag
+    }
+
+    applyName(name) {
+        if(name.length == 0) {
+            name = document.querySelector('.name-input').placeholder
+            this.addGamertag(name)
+        } else {
+            this.addGamertag(name)
+        }
     }
 
     applySettings() {
-        let name = document.querySelector('.name-input')
-        if(name.value.length != 0) settingsChanges(name.value)
+        let name = document.querySelector('.name-input').value
+        if(name.length !== 0) {
+            document.querySelector('.name-input').value = ''
+            this.socket.emit('name-change-request', name)
+        }
 
         let sensitivity = document.querySelector('.sens-slider').value
         let sens = sensitivity / 100
-        console.log(sens)
         this.controls.pointerSpeed = sens
     }
 

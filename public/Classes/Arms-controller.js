@@ -10,6 +10,32 @@ export class Arms {
 
         this.dz = 0
         this.dy = 0
+
+        this.offsetValues = {
+            aimingNoCrouch : {
+                x: 0,
+                y: -0.8,
+                z: 0
+            },
+            crouch : {
+                x: 0,
+                y: -0.6,
+                z: 0.05
+            },
+            noAction : {
+                x: 0,
+                y: -0.7,
+                z: 0.1
+            }
+        }
+
+        this.offset = {
+            x: null,
+            y: null,
+            z: null
+        }
+
+        this.lastState = ''
     }
 
     initialize() {
@@ -37,26 +63,6 @@ export class Arms {
         }, 10)
     }
 
-    changeAction(type, dir) {
-        let origin = 0, direction = 0
-        if(type == 'crouch') {
-            if (dir == 'down') {
-
-            } else if(dir == 'up') {
-
-            }
-        }
-        let timeElapsed = 0
-        let interval = setInterval(() => {
-            timeElapsed += 10
-
-            if (timeElapsed >= 200) {
-                clearInterval(interval)
-                return
-            }
-        }, 10)
-    }
-
     changeWeapon() {
         if(this.changingWeapon) return
         this.changingWeapon = true
@@ -78,27 +84,66 @@ export class Arms {
         }, 10)
     }
 
-    update(state) {
-        
+    changeAction(state) {
+        let o = null;
+        if (state.includes('.ADS') && !state.includes('.crouch')) {
+            o = this.offsetValues.aimingNoCrouch;
+        } else if (state.includes('.crouch')) {
+            o = this.offsetValues.crouch;
+        } else {
+            o = this.offsetValues.noAction;
+        }
+
+        let lastOffset = null;
+        if (state !== this.lastState) {
+            if (this.lastState.includes('.ADS') && !this.lastState.includes('.crouch')) {
+                lastOffset = this.offsetValues.aimingNoCrouch;
+            } else if (this.lastState.includes('.crouch')) {
+                lastOffset = this.offsetValues.crouch;
+            } else {
+                lastOffset = this.offsetValues.noAction;
+            }
+        } else {
+            lastOffset = o
+        }
+
+        this.lastState = state;
+    
+        let dx = o.x - lastOffset.x;
+        let dy = o.y - lastOffset.y;
+        let dz = o.z - lastOffset.z;
+    
+        let timeElapsed = 0;
+        let time = 200;
+    
+        let interval = setInterval(() => {
+            timeElapsed += 10;
+            let xElapsed = lastOffset.x + (dx / time * timeElapsed);
+            let yElapsed = lastOffset.y + (dy / time * timeElapsed);
+            let zElapsed = lastOffset.z + (dz / time * timeElapsed);
+    
+            this.offset = {
+                x: xElapsed,
+                y: yElapsed,
+                z: zElapsed
+            };
+    
+            if (timeElapsed >= time) {
+                clearInterval(interval);
+            }
+        }, 10);
+    }
+    
+
+    update() {
         if(!this.component) return
         this.component.position.copy(this.camera.position);
         this.component.rotation.copy(this.camera.rotation);
         this.component.updateMatrix();
         this.component.rotateY(Math.PI)
-        
 
-        if(state.includes('.ADS') && !state.includes('.crouch')) {
-            this.component.translateZ(0 + this.dz);
-            this.component.translateY(-0.8 + this.dy);
-            this.component.translateX(0);
-        } else if (state.includes('.crouch')) {
-            this.component.translateZ(0.05 + this.dz);
-            this.component.translateY(-0.6 + this.dy);
-            this.component.translateX(0);
-        }  else {
-            this.component.translateZ(0.1 + this.dz);
-            this.component.translateY(-0.7 + this.dy);
-            this.component.translateX(0);
-        }
+        this.component.translateZ(this.offset.z + this.dz);
+        this.component.translateY(this.offset.y + this.dy);
+        this.component.translateX(this.offset.x);
     }
 }

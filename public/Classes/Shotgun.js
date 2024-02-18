@@ -42,7 +42,11 @@ export class Shotgun extends Gun {
     }
 
     shoot() {
-        if(!this.player.state.includes('.ADS') || this.player.state.includes('dead')) return
+        if(!this.player.state.includes('.ADS') || this.player.state.includes('dead')) {
+            if (!this.player.state.includes('crouch')) {
+                return
+            }
+        }
         if(this.reloading) {
             this.stopReload()
         }
@@ -77,8 +81,8 @@ export class Shotgun extends Gun {
 
             if(this.intersects.length > 0) {
                 let target = this.intersects[0].object.parent
-                gamertag = target.gamerTag
-                if(gamertag) {
+                let userData = target.userData
+                if(userData.id) {
                     let dam = null
                     let dy = this.intersects[0].point.y - target.position.y
 
@@ -106,7 +110,7 @@ export class Shotgun extends Gun {
             if(headshot) {
                 color = 'yellow'
             }
-            this.socket.emit('player-hit', [damageTotal, gamertag, color])
+            this.socket.emit('player-hit', [damageTotal, userData.id, color])
         } 
 
         super.recoil()

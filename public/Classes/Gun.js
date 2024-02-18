@@ -1,5 +1,5 @@
 import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js'
-import { arms, crosshair, mainPlayerArms, audio } from '../app.js'
+import { arms, crosshair, mainPlayerArms } from '../app.js'
 
 
 export class Gun {
@@ -49,8 +49,6 @@ export class Gun {
 
         marker.position.copy(hitPoint);
         this.scene.add(marker);
-
-        //hitNormal.applyAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2)
     
         marker.lookAt(hitPoint.clone().add(hitNormal));
 
@@ -61,7 +59,7 @@ export class Gun {
     }
 
     muzzleFlash() {
-        const light = new THREE.PointLight( 0xffffff, 10, 100 );
+        const light = new THREE.PointLight( 0xffffff, 100, 15 );
         light.position.copy(this.camera.position)
         light.rotation.copy(this.camera.rotation);
         light.updateMatrix();

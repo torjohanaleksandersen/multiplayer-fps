@@ -26,7 +26,7 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
 const renderer = new THREE.WebGLRenderer( { antialias: true } );
 
-export let lockscreen = new LockScreen(camera, renderer)
+export let lockscreen = new LockScreen(camera, renderer, socket)
 
 let world = new World(scene, camera, renderer)
 world.initialize()
@@ -75,6 +75,7 @@ socket.on('player-update', playersList => {
                 attachGunComponents[id] = new GunAttacher(arms.component)
                 attachGunComponents[id].attachGun(inHand)
                 mainPlayerArms = attachGunComponents[id]
+                lockscreen.addGamertag(gamertag)
             } else {
                 players[id] = 'building'
                 const loader = new FBXLoader()
@@ -107,6 +108,9 @@ socket.on('player-update', playersList => {
                 animationComponents[id].playAnimation(state)
                 attachGunComponents[id].updateFromPlayerState(state)
                 players[id].state = state;
+                if(socket.id == id) {
+                    arms.changeAction(player.state)
+                }
                 //handleAudioFromState(state)
             }
             if (inHand && inHand !== players[id].inHand) {
@@ -204,6 +208,7 @@ export function keydownHandler(eventCode) {
     }
     if(eventCode == 'KeyG') {
         //console something
+        console.table(player.position[0], player.position[2])
     }
 }
 
@@ -216,10 +221,6 @@ export function keyupHandler(eventCode) {
     }
 }
 
-export function settingsChanges(name) {
-    socket.emit('settings-change', name)
-}
-
 function loop() {
     requestAnimationFrame(loop);
     renderer.render(scene, camera); 
@@ -228,9 +229,9 @@ function loop() {
         animationComponents[id].update()
     }
 
+    arms.update(player.state)
     gun.update()
     player.update()
-    arms.update(player.state)
     crosshair.update(player.state)
     lockscreen.update()
     world.animate()

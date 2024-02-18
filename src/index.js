@@ -47,9 +47,14 @@ class User {
             this.hit(data)
         })
 
-        this.socket.on('settings-change', data => {
-            const name = data
+        this.socket.on('name-change-request', name => {
+            for (let i = 0; i < USERS.length; i++) {
+                if (USERS[i].gamerTag == name) {
+                    return
+                }
+            }
             this.gamerTag = name
+            this.socket.emit('name-verified', name)
             updateGloballyLeaderboard()
         })
 
@@ -69,10 +74,10 @@ class User {
     }
 
     hit(data) {
-        const [damage, gamertag, color] = data
+        const [damage, id, color] = data
         let target = null
         for (let i = 0; i < USERS.length; i++) {
-            if(USERS[i].gamerTag == gamertag) {
+            if(USERS[i].id == id) {
                 target = USERS[i]
                 break
             }
@@ -87,7 +92,7 @@ class User {
                 target.deaths++
                 target.socket.emit('die', this.gamerTag)
             } 
-            this.socket.emit('target-hit', [target.health, color, gamertag, target.state])
+            this.socket.emit('target-hit', [target.health, color, target.gamerTag, target.state])
             updateGloballyLeaderboard()
         }
     }

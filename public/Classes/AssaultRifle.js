@@ -75,8 +75,8 @@ export class AssaultRifle extends Gun {
 
         if(this.intersects.length > 0) {
             let target = this.intersects[0].object.parent
-            let gamertag = target.gamerTag
-            if(gamertag) {
+            let userData = target.userData
+            if(userData.id) {
                 let dam = null
                 let dy = this.intersects[0].point.y - target.position.y
 
@@ -95,7 +95,7 @@ export class AssaultRifle extends Gun {
 
                 if(dam <= 0) dam = 0
                 
-                this.socket.emit('player-hit', [dam, gamertag, color])
+                this.socket.emit('player-hit', [dam, userData.id, color])
             } else {
                 super.handleBulletImpact(this.intersects[0].point, this.intersects[0].normal)
                 

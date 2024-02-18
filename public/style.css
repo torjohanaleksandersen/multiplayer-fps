@@ -496,3 +496,12 @@ body {
     color: white;
     font-weight: 600;
 }
+
+.name-input {
+    height: 80%;
+    width: 80%;
+    font-size: 4vh;
+    border: none;
+    background: none;
+    color: white;
+}
