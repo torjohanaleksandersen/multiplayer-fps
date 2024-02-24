@@ -1,107 +1,71 @@
 import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js'
-import { FBXLoader } from '../World/WorldObjects/FBXLoader/FBXLoader.js'
+import { GLTFLoader } from '../../World/WorldObjects/GLTFLoader.js'
 
 let gunPath = {
-    'M416': 'M416.fbx',
-    'S1897': 'Shotgun_3.fbx'
+    'M416': 'M416.glb',
+    'AKM': 'AKM.glb',
+    'S1897': 'S1897.glb',
+    'SawedOff': 'SawedOff.glb'
 }
 
 let gunStates = {
+    'offsets': {
+        'idle': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.45]
+        },
+        'walk': {
+            rot: [Math.PI / 1.7, 0, Math.PI * 1.5]
+        },
+        'run': {
+            rot: [Math.PI / 1.5, 0, Math.PI * 1.5]
+        },
+    
+        'idle.ADS': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+    
+        'walk.ADS': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+    
+        'run.ADS': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+
+
+        'idle.crouch': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+        'walk.crouch': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+        'run.crouch': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+    
+        'idle.crouch.ADS': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+    
+        'walk.crouch.ADS': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+    
+        'run.crouch.ADS': {
+            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
+        },
+    },
     'M416': {
         'pos': [2, 0, 5],
-        'idle': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.45]
-        },
-        'walk': {
-            rot: [Math.PI / 1.7, 0, Math.PI * 1.5]
-        },
-        'run': {
-            rot: [Math.PI / 1.5, 0, Math.PI * 1.5]
-        },
-    
-        'idle.ADS': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-    
-        'walk.ADS': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-    
-        'run.ADS': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-
-
-        'idle.crouch': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-        'walk.crouch': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-        'run.crouch': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-    
-        'idle.crouch.ADS': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-    
-        'walk.crouch.ADS': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-    
-        'run.crouch.ADS': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-
-
-
     },
     'S1897': {
-        'pos': [10, 0, 5],
-        'idle': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.45]
-        },
-        'walk': {
-            rot: [Math.PI / 1.7, 0, Math.PI * 1.5]
-        },
-        'run': {
-            rot: [Math.PI / 1.5, 0, Math.PI * 1.5]
-        },
-    
-        'idle.ADS': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-    
-        'walk.ADS': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-    
-        'run.ADS': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-
-        'idle.crouch': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-        'walk.crouch': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-        'run.crouch': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-    
-        'idle.crouch.ADS': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-    
-        'walk.crouch.ADS': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
-    
-        'run.crouch.ADS': {
-            rot: [Math.PI / 1.4, 0, Math.PI * 1.5]
-        },
+        'pos': [10, 0, 5]
+    },
+    'AKM': {
+        'pos': [2, 0, 5],
+    },
+    'SawedOff': {
+        'pos': [7, 0, 5]
     }
     
 }
@@ -111,6 +75,7 @@ export class GunAttacher {
         this.character = character
         this.gun = null
         this.gunString = ''
+        this.tmpState = ''
     }
 
     findHand() {
@@ -126,21 +91,21 @@ export class GunAttacher {
     }
 
     attachGun(gun) {
-        if(this.gun) {
-            this.detachGun()
-            this.gun = null
-        }
+        this.detachGun()
         this.gunString = gun
-        const loader = new FBXLoader()
-        loader.setPath('./Guns/')
-        loader.load(gunPath[gun], (fbx) => {
-            fbx.scale.setScalar(0.15)
-            fbx.rotation.set(Math.PI / 1.4, 0, Math.PI * 1.45)
-            fbx.position.set(2, 0, 5)
-            this.gun = fbx
 
-            this.findHand().add(fbx)
+        const loader = new GLTFLoader()
+        loader.setPath('./Guns/')
+        loader.load(gunPath[gun], (gltf) => {
+            const model = gltf.scene
+            model.scale.set(15, 15, 15)
+            model.rotation.set(Math.PI / 1.4, 0, Math.PI * 1.45)
+            model.position.set(2, 0, 5)
+            this.gun = model
+
+            this.findHand().add(model)
             this.initializeMuzzleFlash()
+            this.updateFromPlayerState(this.tmpState)
         })
     }
 
@@ -169,17 +134,21 @@ export class GunAttacher {
         this.muzzleFlashMesh.visible = true
     }
     removeMuzzleFlash() {
+        if(!this.muzzleFlashMesh) return
         this.muzzleFlashMesh.visible = false
     }
 
     detachGun() {
+        if(!this.gun) return
         this.gun.parent.remove(this.gun)
+        this.gun = null
     }
 
     updateFromPlayerState(state) {
-        if(!this.gun) return
+        this.tmpState = state
+        if(!this.gun || !this.tmpState) return
         if(state.includes("dead")) return
         this.gun.position.set(...gunStates[this.gunString]['pos'])
-        this.gun.rotation.set(...gunStates[this.gunString][state].rot)
+        this.gun.rotation.set(...gunStates['offsets'][state].rot)
     }
 }

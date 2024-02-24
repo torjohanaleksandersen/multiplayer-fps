@@ -5,27 +5,33 @@ export class Crosshair {
 
         this.keys = {
             'M416': this.assaultRifle,
-            'S1897': this.shotgun
+            'AKM': this.assaultRifle,
+            'S1897': this.shotgun,
+            'SawedOff': this.shotgun
         }
 
-        this.active = this.assaultRifle
+        this.active = null
     }
 
     get dist() {
+        if(!this.active.dist) return
         return this.active.dist
     }
 
     changeCrosshair(k) {
-        this.remove()
+        if(this.active) this.remove()
         this.active = this.keys[k]
+        this.active.type = k
         this.add()
     }
 
     update(state) {
+        if(!this.active) return
         this.active.update(state)
     }
 
     remove() {
+        if(!this.active) return
         this.active.elements.forEach(element => {
             element.style.display = 'none'
         })
@@ -124,21 +130,41 @@ class AssaultRifle {
         this.height = 10
         this.dist = 5
 
+        this.type = ''
+
         this.stateMap = {
-            'idle.crouch.ADS': 2,
-            'idle.ADS': 4,
-            'idle': 20,
-            'idle.crouch': 14,
-        
-            'walk.crouch.ADS': 17,
-            'walk.ADS': 20,
-            'walk': 35,
-            'walk.crouch': 25,
-        
-            'run.crouch.ADS': 25,
-            'run.ADS': 35,
-            'run': 60,
-            'run.crouch': 35,
+            'M416': {
+                'idle.crouch.ADS': 2,
+                'idle.ADS': 4,
+                'idle': 20,
+                'idle.crouch': 14,
+            
+                'walk.crouch.ADS': 17,
+                'walk.ADS': 20,
+                'walk': 35,
+                'walk.crouch': 25,
+            
+                'run.crouch.ADS': 25,
+                'run.ADS': 35,
+                'run': 60,
+                'run.crouch': 35,
+            },
+            'AKM': {
+                'idle.crouch.ADS': 4,
+                'idle.ADS': 5,
+                'idle': 23,
+                'idle.crouch': 17,
+            
+                'walk.crouch.ADS': 20,
+                'walk.ADS': 24,
+                'walk': 41,
+                'walk.crouch': 30,
+            
+                'run.crouch.ADS': 31,
+                'run.ADS': 41,
+                'run': 75,
+                'run.crouch': 42,
+            }
         }
 
         this.dot = document.createElement('div')
@@ -176,12 +202,13 @@ class AssaultRifle {
     initalize() {
         this.elements.forEach(element => {
             this.container.appendChild(element)
+            element.style.display = 'none'
         })
     }
 
 
     update(state) {
-        this.dist = this.stateMap[state]
+        this.dist = this.stateMap[this.type][state]
         
         let middleX = (window.innerWidth / 2) - (this.width / 2)
         let middleY = (window.innerHeight / 2) - (this.width / 2)

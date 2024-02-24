@@ -1,15 +1,16 @@
 import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js'
 import { World } from './World/World.js';
-import { LockScreen } from './Classes/Lock-screen-component.js';
+import { LockScreen } from './Classes/UserInterface/Lock-screen-component.js';
 import { FBXLoader } from './World/WorldObjects/FBXLoader/FBXLoader.js'
 import { AnimationComponent } from './Classes/Animation-component.js'
-import { GunAttacher } from './Classes/Attach-gun-component.js';
+import { GunAttacher } from './Classes/Gun/Attach-gun-component.js';
 import { Arms } from './Classes/Arms-controller.js';
-import { GunController } from './Classes/Gun-controller.js';
-import { Crosshair } from './Classes/Crosshair-component.js'
-import { UserInterface } from './Classes/UI-controller.js'
-import { AudioController } from './Classes/Audio-controller.js';
+import { GunController } from './Classes/Gun/Gun-controller.js';
+import { Crosshair } from './Classes/UserInterface/Crosshair-component.js'
+import { UserInterface } from './Classes/UserInterface/UI-controller.js'
+import { AudioController } from './Classes/UserInterface/Audio-controller.js';
 import { keyStates } from './World/WorldObjects/handle-keydown.js';
+import { PickupableManager } from './Classes/UserInterface/Pickupables.js';
 
 const socket = io()
 
@@ -27,6 +28,7 @@ const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.inner
 const renderer = new THREE.WebGLRenderer( { antialias: true } );
 
 export let lockscreen = new LockScreen(camera, renderer, socket)
+export let userSettings = lockscreen.settings
 
 let world = new World(scene, camera, renderer)
 world.initialize()
@@ -39,12 +41,12 @@ export let player = world.Player
 export let userInterface = new UserInterface()
 
 export let gun = new GunController(socket, camera, scene, player)
-gun.updateAmmo()
 
 export let crosshair = new Crosshair()
 
 export let audio = new AudioController(camera)
 
+export let itemManager = new PickupableManager(socket, scene, camera, player)
 
 let callbackStartGame = setInterval(() => {
     if(world.initialized && arms.component) {
@@ -73,7 +75,7 @@ socket.on('player-update', playersList => {
                 players[id].gamerTag = gamertag
                 animationComponents[id] = new AnimationComponent(new THREE.AnimationMixer(arms.component))
                 attachGunComponents[id] = new GunAttacher(arms.component)
-                attachGunComponents[id].attachGun(inHand)
+                if(inHand) attachGunComponents[id].attachGun(inHand)
                 mainPlayerArms = attachGunComponents[id]
                 lockscreen.addGamertag(gamertag)
             } else {
@@ -93,7 +95,7 @@ socket.on('player-update', playersList => {
                     players[id].gamerTag = gamertag
                     animationComponents[id] = new AnimationComponent(new THREE.AnimationMixer(fbx))
                     attachGunComponents[id] = new GunAttacher(fbx)
-                    attachGunComponents[id].attachGun(inHand)
+                    if(inHand) attachGunComponents[id].attachGun(inHand)
                 })
             }
         } else {
@@ -123,18 +125,37 @@ socket.on('player-update', playersList => {
     socket.emit('client-update', [player.position, player.yRotation, player.state, player.inHand, player.health])
 })
 
+socket.on('shot-fired', id => {
+    attachGunComponents[id].addMuzzleFlash()
+
+    setTimeout(() => {
+        attachGunComponents[id].removeMuzzleFlash()
+    }, 200)
+})
+
 socket.on('being-hit', health => {
     player.health = health
     userInterface.health(health)
 })
 
+let spectatingTarget = null
+let spectating = false
+
 socket.on('die', killer => {
     player.state = 'dead'
     userInterface.health(0)
     userInterface.killed(killer)
+
+    for (const id in players) {
+        if(players[id].gamerTag == killer) {
+            spectatingTarget = players[id]
+        }
+    }
+
+    if(!spectatingTarget) return
+    
     setTimeout(() => {
-        world.resetPlayerPosition()
-        userInterface.health(player.health)
+        spectating = true
     }, 5000)
 })
 
@@ -178,47 +199,99 @@ socket.on('leaderboard', players => {
     userInterface.updateLeaderboard(players)
 })
 
+socket.on('clock-update', data => {
+    let [m, s] = data
+    if(s.toString().length == 1) {
+        s = '0' + s
+    }
+    document.getElementById('clock-minutes').innerText = m
+    document.getElementById('clock-seconds').innerText = s
+})
+
+socket.on('new-round', data => {
+    const [pos, round, pickupables] = data
+    itemManager.deleteAllPickupables()
+    document.getElementById('rounds').innerHTML = round
+    world.resetPlayerPosition(pos)
+    attachGunComponents[socket.id].detachGun()
+    gun.stopReload()
+    gun.resetUserData() 
+    gun.activeGun = null
+    gun.resetAmmo()
+    itemManager.updateUI()
+    userInterface.health(player.health)
+    player.resetUserdata()
+    players[socket.id].inHand = null
+    crosshair.remove()
+    camera.near = 0.1
+    camera.updateProjectionMatrix()
+    pickupables.forEach(pickupable => {
+        const [model, pos] = pickupable
+        itemManager.addPickupableToWorld(model, pos)
+    })
+})
+
+socket.on('waiting-for-match', () => {
+    document.querySelector('.waiting-for-round').style.opacity = 1
+})
+
+socket.on('match-startet', () => {
+    document.querySelector('.waiting-for-round').style.opacity = 0
+})
+
 function handleAudioFromState(state) {
     let path = './Audio/Actions/' + state + '.mp3'
     audio.handleActions(path, state)
 }
 
-export function keydownHandler(eventCode) {
-    if(eventCode == 'Digit1') {
-        if(player.inHand == 'M416') return
-        player.inHand = 'M416'
-        gun.changeGun(player.inHand)
-        arms.changeWeapon()
-        crosshair.changeCrosshair(player.inHand)
-        mainPlayerArms.removeMuzzleFlash()
+export function keydownHandler(key) {
+    if(key == '1' || key == '2' || key == '3' || key == '4') {
+        if (player.inventory.guns[parseInt(key) - 1]) {
+            changeWeapon(player.inventory.guns[parseInt(key) - 1])
+        }
     }
-    if(eventCode == 'Digit2') {
-        if(player.inHand == 'S1897') return
-        player.inHand = 'S1897'
-        gun.changeGun(player.inHand)
-        arms.changeWeapon()
-        crosshair.changeCrosshair(player.inHand)
-        mainPlayerArms.removeMuzzleFlash()
-    }
-    if(eventCode == 'ShiftLeft') {
+    if(key == 'Shift') {
         world.crouch('down')
     }
-    if(eventCode == 'Space') {
+    if(key == ' ') {
         keyStates['spaceStillDown'] = true
     }
-    if(eventCode == 'KeyG') {
-        //console something
-        console.table(player.position[0], player.position[2])
+    if(key == 'e') {
+        itemManager.pickupItemRequestToServer()
+    }
+    if(key == 'g') {
+        /*
+        let pos = {
+            'x': player.position[0],
+            'y': player.position[1] - 0.35,
+            'z': player.position[2]
+        }
+        console.table(pos)
+        */
+        let pos = [
+            player.position[0].toFixed(2),
+            (player.position[1] - 0.35).toFixed(2),
+            player.position[2].toFixed(2),
+        ]
+        console.log(pos)
     }
 }
 
-export function keyupHandler(eventCode) {
-    if(eventCode == 'ShiftLeft') {
+export function keyupHandler(key) {
+    if(key == 'Shift') {
         world.crouch('up')
     }
-    if(eventCode == 'Space') {
+    if(key == ' ') {
         keyStates['spaceStillDown'] = false
     }
+}
+
+function changeWeapon(GUN) {
+    player.inHand = GUN
+    gun.changeGun(player.inHand)
+    arms.changeWeapon()
+    crosshair.changeCrosshair(player.inHand)
+    mainPlayerArms.removeMuzzleFlash()
 }
 
 function loop() {
@@ -229,10 +302,21 @@ function loop() {
         animationComponents[id].update()
     }
 
+    if (player.state.includes('dead') && spectating) {
+        let position = spectatingTarget.position.clone().add(new THREE.Vector3(0, 0.8, 0))
+        let rotation = spectatingTarget.rotation.clone()
+        rotation.y += Math.PI
+        camera.position.copy(position)
+        camera.rotation.copy(rotation)
+        camera.near = 1
+        camera.updateProjectionMatrix()
+    }
+
     arms.update(player.state)
     gun.update()
     player.update()
     crosshair.update(player.state)
     lockscreen.update()
+    itemManager.update()
     world.animate()
 }

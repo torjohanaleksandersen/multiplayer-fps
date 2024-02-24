@@ -1,4 +1,4 @@
-import { FirstPersonCamera } from "../World/WorldObjects/first-person-camera.js";
+import { FirstPersonCamera } from "../../World/WorldObjects/first-person-camera.js";
 
 export class LockScreen {
     constructor(camera, renderer, socket) {
@@ -38,6 +38,10 @@ export class LockScreen {
         this.socket.on('name-verified', data => {
             this.applyName(data)
         })
+
+
+        this.settings = {}
+        this.settings['ADS-required'] = true
     }
 
     addGamertag(tag) {
@@ -64,6 +68,10 @@ export class LockScreen {
         let sensitivity = document.querySelector('.sens-slider').value
         let sens = sensitivity / 100
         this.controls.pointerSpeed = sens
+        this.settings['sensitivity'] = sensitivity
+
+        let ADSrequired = document.getElementById('ADS-required').checked
+        this.settings['ADS-required'] = ADSrequired
     }
 
     changeScreen(screen) {

@@ -9,13 +9,13 @@ document.addEventListener( 'keydown', ( event ) => {
     keyStates[ event.code ] = true;
 
     if(event.code == 'KeyR') gun.reload()
-    keydownHandler(event.code)
+    keydownHandler(event.key)
 } );
 
 document.addEventListener( 'keyup', ( event ) => {
 
     keyStates[ event.code ] = false;
-    keyupHandler(event.code)
+    keyupHandler(event.key)
 
 } );
 

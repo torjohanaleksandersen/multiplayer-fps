@@ -12,17 +12,35 @@ export class Player {
         this.health = 100
         this.yRotation = 0
         this.state = 'idle'
-        this.inHand = 'M416'
+        this.inHand = ''
         this.aiming = false
         this.crouching = false
         this.speed = 9
         this.jumpForce = 9
+        this.maxGuns = 2
+        this.inventory = {
+            guns: [],
+            ammo: {
+                '5.56mm Ammo': 0,
+                '7.62mm Ammo': 0,
+                '12 Gauge Ammo': 0,
+            }
+        }
     }
 
     resetUserdata() {
         this.health = 100
         this.state = 'idle'
         this.aiming = false
+        this.inHand = null
+        this.inventory = {
+            guns: [],
+            ammo: {
+                '5.56mm Ammo': 0,
+                '7.62mm Ammo': 0,
+                '12 Gauge Ammo': 0,
+            }
+        }
     }
 
     crouch(dir) {

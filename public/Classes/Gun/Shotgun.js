@@ -1,30 +1,81 @@
 import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js'
-import { userInterface, audio} from '../app.js'
+import { userInterface, audio} from '../../app.js'
 import { Gun } from './Gun.js'
 
 export class Shotgun extends Gun {
     constructor(socket, camera, scene, player) {
         super(socket, camera, scene, player)
 
-        this.headshot = 30
-        this.bodyshot = 23
-        this.range = 3
-        this.cooldown = 1500
-        this.reloadTime = 500
+        this.guns = {
+            'S1897': {
+                headshot: 30,
+                bodyshot: 23,
+                range: 3,
+                cooldown: 1500,
+                reloadTime: 500,
 
-        this.magazineSize = 8
-        this.currentAmmo = this.magazineSize
-        this.totalAmmo = 10000
-        this.pellets = 10
+                magazineSize: 8,
+                currentAmmo: 8,
+                totalAmmo: 10000,
+                pellets: 10,
+                ammoType: '12 Gauge Ammo'
+            },
+            'SawedOff': {
+                headshot: 70,
+                bodyshot: 43,
+                range: 3,
+                cooldown: 250,
+                reloadTime: 1000,
+
+                magazineSize: 2,
+                currentAmmo: 2,
+                totalAmmo: 10000,
+                pellets: 10,
+                ammoType: '12 Gauge Ammo'
+            }
+        }
 
         this.shotFired = false
         this.reloading = false
         this.reloadTimeout = null
         
+        this.type = ''
     }
 
     updateAmmo() {
-        userInterface.updateAmmo(this.currentAmmo, this.totalAmmo)
+        this.guns[this.type].totalAmmo = this.player.inventory.ammo[this.guns[this.type].ammoType]
+        userInterface.updateAmmo(this.guns[this.type].currentAmmo, this.guns[this.type].totalAmmo)
+    }
+
+    resetUserData() {
+        this.guns = {
+            'S1897': {
+                headshot: 30,
+                bodyshot: 23,
+                range: 3,
+                cooldown: 1500,
+                reloadTime: 500,
+
+                magazineSize: 8,
+                currentAmmo: 8,
+                totalAmmo: 10000,
+                pellets: 10,
+                ammoType: '12 Gauge Ammo'
+            },
+            'SawedOff': {
+                headshot: 70,
+                bodyshot: 43,
+                range: 3,
+                cooldown: 250,
+                reloadTime: 1000,
+
+                magazineSize: 2,
+                currentAmmo: 2,
+                totalAmmo: 10000,
+                pellets: 10,
+                ammoType: '12 Gauge Ammo'
+            }
+        }
     }
 
     shootController(ox, oy, oz) {
@@ -33,7 +84,7 @@ export class Shotgun extends Gun {
         this.shoot(ox, oy, oz)
         setTimeout(() => {
             this.shotFired = false
-        }, this.cooldown)
+        }, this.guns[this.type].cooldown)
     }
 
     stopReload() {
@@ -42,17 +93,12 @@ export class Shotgun extends Gun {
     }
 
     shoot() {
-        if(!this.player.state.includes('.ADS') || this.player.state.includes('dead')) {
-            if (!this.player.state.includes('crouch')) {
-                return
-            }
-        }
         if(this.reloading) {
             this.stopReload()
         }
         this.reloading = false
-        if(this.currentAmmo != 0) {
-            this.currentAmmo--;
+        if(this.guns[this.type].currentAmmo != 0) {
+            this.guns[this.type].currentAmmo--;
             this.updateAmmo()
         } else {
             audio.playAudio('./Audio/Guns/Shotgun Dry.mp3')
@@ -60,12 +106,13 @@ export class Shotgun extends Gun {
         }
         audio.playAudio('./Audio/Guns/Shotgun Fire-2.mp3')
         super.playAudioForClients('Shotgun Fire-2.mp3')
+        super.shoot()
 
         let damageTotal = 0
         let headshot = false
-        let gamertag = ''
+        let userData = null
 
-        for (let i = 0; i < this.pellets; i++) {
+        for (let i = 0; i < this.guns[this.type].pellets; i++) {
             this.ray = new THREE.Raycaster()
             this.cameraDirection = new THREE.Vector3()
             this.camera.getWorldDirection(this.cameraDirection)
@@ -81,7 +128,7 @@ export class Shotgun extends Gun {
 
             if(this.intersects.length > 0) {
                 let target = this.intersects[0].object.parent
-                let userData = target.userData
+                userData = target.userData
                 if(userData.id) {
                     let dam = null
                     let dy = this.intersects[0].point.y - target.position.y
@@ -91,10 +138,10 @@ export class Shotgun extends Gun {
                     let distance = Math.round(targetPos.distanceTo(myPos))
 
                     if(dy >= 0.75) {
-                        dam = this.headshot - (distance * this.range)
+                        dam = this.guns[this.type].headshot - (distance * this.guns[this.type].range)
                         headshot = true
                     } else {
-                        dam = this.bodyshot - (distance * this.range)
+                        dam = this.guns[this.type].bodyshot - (distance * this.guns[this.type].range)
                     }
 
                     if(dam <= 0) dam = 0
@@ -118,24 +165,28 @@ export class Shotgun extends Gun {
     }
 
     reload() {
-        if(this.reloading || this.currentAmmo == this.magazineSize) {
+        if(this.reloading || this.guns[this.type].currentAmmo == this.guns[this.type].magazineSize) {
             return
         }
+        
+        if(this.guns[this.type].totalAmmo <= 0) return
         this.reloading = true
 
         audio.playAudio('./Audio/Guns/Shotgun Reload.mp3')
 
-        userInterface.reload(this.reloadTime)
+        userInterface.reload(this.guns[this.type].reloadTime)
 
         this.reloadTimeout = setTimeout(() => {
-            if(!this.reloading || this.totalAmmo <= 0) return
-            this.currentAmmo ++
+            if (!this.reloading) return
+            this.guns[this.type].currentAmmo ++
+            if(this.guns[this.type].totalAmmo > 0) this.guns[this.type].totalAmmo --
+            this.player.inventory.ammo[this.guns[this.type].ammoType] = this.guns[this.type].totalAmmo
             
             this.reloading = false
             this.updateAmmo()
-            if(this.currentAmmo < this.magazineSize) {
+            if(this.guns[this.type].currentAmmo < this.guns[this.type].magazineSize) {
                 this.reload()
             }
-        }, this.reloadTime)
+        }, this.guns[this.type].reloadTime)
     }
 }

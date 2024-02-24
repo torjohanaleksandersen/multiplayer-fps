@@ -1,5 +1,5 @@
 import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js'
-import { arms, crosshair, mainPlayerArms } from '../app.js'
+import { arms, crosshair, mainPlayerArms } from '../../app.js'
 
 
 export class Gun {
@@ -22,6 +22,10 @@ export class Gun {
            }
         })
         return array
+    }
+
+    shoot() {
+        this.socket.emit('shot-fired')
     }
 
     spread() {

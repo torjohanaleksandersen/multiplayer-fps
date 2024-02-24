@@ -56,6 +56,17 @@
             <div class="w"></div>
         </div>
 
+        <div class="timer">
+            <div id="rounds">0</div>
+            <div id="timer-counter">
+                <span id="clock-minutes">0</span>:
+                <span id="clock-seconds">00</span>
+            </div>
+        </div>
+        <div class="waiting-for-round">
+            waiting for round...
+        </div>
+
         <div class="lock-screen">
             <div class="pause-container">
                 <div class="pause-title">pause</div>
@@ -79,13 +90,52 @@
                     </div>
                 </div>
                 <div class="setting-row">
-                    <div class="setting-type">ADS sens</div>
+                    <div class="setting-type">ADS req</div>
                     <div class="input-to-setting">
-                        <span class="sens-value">50</span><input type="range" min="1" max="200" value="50" class="sens-slider"/>
+                        <span style="font-size: 2vh; color:white;">(off = trash)</span><input type="checkbox" id="ADS-required" checked/>
                     </div>
                 </div>
                 <button class="back-pause">back</button>
             </div>
+        </div>
+
+        <div class="item-displayer">
+            <div class="item-displayer-row" id="slot-1">
+                <div class="item-displayer-left">
+                    <div id="gun-pickup-keybind">1</div>
+                </div>
+                <div class="item-displayer-right">
+                    <img src="" alt="" width="80%">
+                </div>
+            </div>
+            <div class="item-displayer-row" id="slot-1">
+                <div class="item-displayer-left">
+                    <div id="gun-pickup-keybind">2</div>
+                </div>
+                <div class="item-displayer-right">
+                    <img src="" alt="" width="80%">
+                </div>
+            </div>
+            <div class="item-displayer-row" id="slot-1">
+                <div class="item-displayer-left">
+                    <div id="gun-pickup-keybind">3</div>
+                </div>
+                <div class="item-displayer-right">
+                    <img src="" alt="" width="80%">
+                </div>
+            </div>
+            <div class="item-displayer-row" id="slot-1">
+                <div class="item-displayer-left">
+                    <div id="gun-pickup-keybind">4</div>
+                </div>
+                <div class="item-displayer-right">
+                    <img src="" alt="" width="80%">
+                </div>
+            </div>
+        </div>
+
+        <div class="item-pickup">
+            <div id="gun-pickup-keybind">E</div>PICK UP <span id="gun-pickup" style="color: white;">AKM</span>
         </div>
     </div>
     <div class="death-screen">
@@ -103,6 +153,7 @@
 <script type="module" src="app.js"></script>
 <script type="module" src="World/World.js"></script>
 <script type="module" src="World/WorldObjects/first-person-camera.js"></script>
-<script type="module" src="Classes/Lock-screen-component.js"></script>
-<script type="module" src="Classes/Audio-controller.js"></script>
+<script type="module" src="Classes/UserInterface/Lock-screen-component.js"></script>
+<script type="module" src="Classes/UserInterface/Audio-controller.js"></script>
+<script type="module" src="Classes/UserInterface/Pickupables.js"></script>
 </html>

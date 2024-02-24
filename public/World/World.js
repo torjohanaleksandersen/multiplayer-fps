@@ -54,7 +54,7 @@ export class World {
         this.scene.background = new THREE.Color( 0x88ccee );
         this.scene.fog = new THREE.Fog( 0x88ccee, 0, 50 );
 
-        const fillLight1 = new THREE.HemisphereLight( 0x8dc1de, 0x00668d, 1.5 );
+        const fillLight1 = new THREE.HemisphereLight( 0x8dc1de, 0x00668d, 2 );
         fillLight1.position.set( 2, 1, 1 );
         this.scene.add( fillLight1 );
 
@@ -140,7 +140,7 @@ export class World {
     
         this.playerCollisions();
     
-        this.camera.position.copy( this.playerCollider.end );
+        if(!this.player.state.includes('dead')) this.camera.position.copy( this.playerCollider.end );
     
     }
     
@@ -354,8 +354,10 @@ export class World {
     }
     
 
-    resetPlayerPosition() {
-        let position = this.getSpawnPosition()
+    resetPlayerPosition(position) {
+        if(!position) {
+            position = this.getSpawnPosition()
+        }
         let x = position[0]
         let z = position[2]
         this.playerCollider.start.set( x, 0.35, z );
